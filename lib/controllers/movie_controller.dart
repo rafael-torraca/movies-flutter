@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-
+import '../core/constants.dart';
 import '../errors/movie_error.dart';
 import '../models/movie_model.dart';
 import '../models/movie_response_model.dart';
@@ -11,6 +11,17 @@ class MovieController {
   MovieResponseModel movieResponseModel;
   MovieError movieError;
   bool loading = true;
+  int gridView = BANNERSIZEGRID_2;
+
+  modifyGridSize() {
+    if (gridView == BANNERSIZEGRID_2) {
+      gridView = BANNERSIZEGRID_3;
+    } else if (gridView == BANNERSIZEGRID_3) {
+      gridView = BANNERSIZEGRID_4;
+    } else {
+      gridView = BANNERSIZEGRID_2;
+    }
+  }
 
   List<MovieModel> get movies => movieResponseModel?.movies ?? <MovieModel>[];
   int get moviesCount => movies.length;

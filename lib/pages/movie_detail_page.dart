@@ -1,3 +1,4 @@
+import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 
 import '../controllers/movie_detail_controller.dart';
@@ -63,9 +64,24 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       children: [
         _buildCover(),
         _buildStatus(),
+        _buildDetails(),
         _buildOverview(),
+        //adicionar outro aqui
       ],
     );
+  }
+
+  _buildDetails() {
+    return Container(
+        padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(_controller.movieDetail.genres[0].name),
+            Text('Language: ' +
+                _controller.movieDetail.originalLanguage.toUpperCase()),
+          ],
+        ));
   }
 
   _buildOverview() {
@@ -93,8 +109,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   }
 
   _buildCover() {
-    return Image.network(
-      'https://image.tmdb.org/t/p/w500${_controller.movieDetail.backdropPath}',
+    return FancyShimmerImage(
+      imageUrl:
+          'https://image.tmdb.org/t/p/w500${_controller.movieDetail.backdropPath}',
     );
   }
 }

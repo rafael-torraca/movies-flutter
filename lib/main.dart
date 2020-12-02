@@ -2,9 +2,20 @@ import 'package:flutter/material.dart';
 import 'core/constants.dart';
 import 'core/theme_app.dart';
 import 'pages/movie_page.dart';
+import 'package:custom_splash/custom_splash.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MaterialApp(
+    home: CustomSplash(
+      imagePath: 'assets/splash_screen.png',
+      backGroundColor: Colors.white10,
+      animationEffect: 'top-down',
+      logoSize: 180,
+      home: MyApp(),
+      duration: 3000,
+      type: CustomSplashType.StaticDuration,
+    ),
+  ));
 }
 
 class MyApp extends StatelessWidget {
