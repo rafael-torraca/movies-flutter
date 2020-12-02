@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:movies/models/movie_model.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import '../core/constants.dart';
 import 'movie_detail_page.dart';
 import '../widgets/centered_message.dart';
@@ -13,27 +15,36 @@ class MoviePage extends StatefulWidget {
 
 class _MoviePageState extends State<MoviePage> {
   final _controller = MovieController();
-  final _scrollController = ScrollController();
+  static const _pageSize = 20;
+  final PagingController<int, MovieModel> _pagingController =
+      PagingController(firstPageKey: 1);
+
   int lastPage = 1;
 
   @override
   void initState() {
     super.initState();
-    _initScrollListener();
+
+    _pagingController.addPageRequestListener((pageKey) {
+      _fetchPage(pageKey);
+    });
+
     _initialize();
   }
 
-  _initScrollListener() {
-    _scrollController.addListener(() async {
-      if (_scrollController.offset >=
-          _scrollController.position.maxScrollExtent) {
-        if (_controller.currentPage == lastPage) {
-          lastPage++;
-          await _controller.fetchAllMovies(page: lastPage);
-          setState(() {});
-        }
-      }
-    });
+  Future<void> _fetchPage(int pageKey) async {
+    final newItems = await _controller.fetchAllMovies(page: pageKey);
+    final isLastPage =
+        newItems.fold((l) => null, (r) => r.movies.length) < _pageSize;
+    if (isLastPage) {
+      _pagingController.appendLastPage(
+          newItems.fold((error) => null, (movies) => movies.movies));
+    } else {
+      final nextPageKey = pageKey + 1;
+      _pagingController.appendPage(
+          newItems.fold((error) => null, (movies) => movies.movies),
+          nextPageKey);
+    }
   }
 
   _gridModify() {
@@ -46,8 +57,6 @@ class _MoviePageState extends State<MoviePage> {
     setState(() {
       _controller.loading = true;
     });
-
-    await _controller.fetchAllMovies(page: lastPage);
 
     setState(() {
       _controller.loading = false;
@@ -71,7 +80,7 @@ class _MoviePageState extends State<MoviePage> {
           onPressed: _initialize,
         ),
         IconButton(
-          icon: Icon(Icons.grid_view),
+          icon: Icon(Icons.apps),
           onPressed: _gridModify,
         )
       ],
@@ -87,17 +96,17 @@ class _MoviePageState extends State<MoviePage> {
       return CenteredMessage(message: _controller.movieError.message);
     }
 
-    return GridView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.all(2.0),
-      itemCount: _controller.moviesCount,
+    return PagedGridView<int, MovieModel>(
+      pagingController: _pagingController,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        childAspectRatio: 100 / 150,
+        crossAxisSpacing: 5,
+        mainAxisSpacing: 5,
         crossAxisCount: _controller.gridView,
-        mainAxisSpacing: 2,
-        crossAxisSpacing: 2,
-        childAspectRatio: 0.65,
       ),
-      itemBuilder: _buildMovieCard,
+      builderDelegate: PagedChildBuilderDelegate<MovieModel>(
+        itemBuilder: (context, item, index) => _buildMovieCard(context, index),
+      ),
     );
   }
 

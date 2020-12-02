@@ -10,7 +10,7 @@ void main() {
       imagePath: 'assets/splash_screen.png',
       backGroundColor: Colors.white10,
       animationEffect: 'top-down',
-      logoSize: 180,
+      logoSize: 250,
       home: MyApp(),
       duration: 3000,
       type: CustomSplashType.StaticDuration,
